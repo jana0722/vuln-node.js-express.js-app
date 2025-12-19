@@ -31,7 +31,7 @@ var cookieParser = require('cookie-parser');
 var session = require('express-session');
 
 const SessionCookie = {
-  secure: false,
+  secure: process.env.NODE_EVN ==='production',
   httpOnly: true,
   sameSite: "lax",
   maxAge: 1000 * 60 * 60 * 60 * 24 * 2

@@ -1,0 +1,36 @@
+Failed to register segfault signal handler! exit_code: 63811585
+Failed to register unwind handler for some critical signals, such as SIGSEGV. If we segfault you are on your own and you will receive no backtraces
+Failed to register segfault signal handler! exit_code: 14910465
+Failed to register unwind handler for some critical signals, such as SIGSEGV. If we segfault you are on your own and you will receive no backtraces
+Failed to register segfault signal handler! exit_code: 20873217
+Failed to register unwind handler for some critical signals, such as SIGSEGV. If we segfault you are on your own and you will receive no backtraces
+Failed to register segfault signal handler! exit_code: 9170433
+Failed to register unwind handler for some critical signals, such as SIGSEGV. If we segfault you are on your own and you will receive no backtraces
+Failed to register segfault signal handler! exit_code: 14811905
+Failed to register unwind handler for some critical signals, such as SIGSEGV. If we segfault you are on your own and you will receive no backtraces
+               
+               
+┌─────────────┐
+│ Scan Status │
+└─────────────┘
+  Scanning 103 files tracked by git with 3 Code rules:
+  Scanning 23 files with 3 js rules.
+                
+                
+┌──────────────┐
+│ Scan Summary │
+└──────────────┘
+✅ Scan completed successfully.
+ • Findings: 0 (0 blocking)
+ • Rules run: 3
+ • Targets scanned: 23
+ • Parsed lines: ~100.0%
+ • Scan skipped: 
+   ◦ Files matching .semgrepignore patterns: 10008
+ • Scan was limited to files tracked by git
+ • For a detailed list of skipped files and lines, run semgrep with the --verbose flag
+Ran 3 rules on 23 files: 0 findings.
+
+A new version of Semgrep is available. See https://semgrep.dev/docs/upgrading
+If Semgrep missed a finding, please send us feedback to let us know!
+See https://semgrep.dev/docs/reporting-false-negatives/
