@@ -1,90 +1,51 @@
 rules:
-  - id: nodejs-ssrf-detection
-    pattern-either:
-      # HTTP/HTTPS requests with user input
-      - pattern: |
-          require('http').request($URL, ...)
-      - pattern: |
-          require('https').request($URL, ...)
-      - pattern: |
-          require('http').get($URL, ...)
-      - pattern: |
-          require('https').get($URL, ...)
-      
-      # Axios requests
-      - pattern: |
-          axios.get($URL, ...)
-      - pattern: |
-          axios.post($URL, ...)
-      - pattern: |
-          axios.put($URL, ...)
-      - pattern: |
-          axios.delete($URL, ...)
-      - pattern: |
-          axios.request({url: $URL, ...})
-      - pattern: |
-          axios({url: $URL, ...})
-      
-      # Fetch API
-      - pattern: |
-          fetch($URL, ...)
-      
-      # Request library
-      - pattern: |
-          request.get($URL, ...)
-      - pattern: |
-          request.post($URL, ...)
-      - pattern: |
-          request($URL, ...)
-      
-      # Got library
-      - pattern: |
-          got.get($URL, ...)
-      - pattern: |
-          got.post($URL, ...)
-      - pattern: |
-          got($URL, ...)
-      
-      # Node-fetch
-      - pattern: |
-          nodeFetch($URL, ...)
-      
-      # Superagent
-      - pattern: |
-          superagent.get($URL)
-      - pattern: |
-          superagent.post($URL)
-    
-    # Look for patterns where URL comes from user input
-    metavariable-pattern:
-      metavariable: $URL
-      pattern-either:
-        - pattern: $REQ.query.$PARAM
-        - pattern: $REQ.body.$PARAM
-        - pattern: $REQ.params.$PARAM
-        - pattern: $REQ.headers.$HEADER
-        - pattern: $REQ.cookies.$COOKIE
-        - pattern: $REQ.get(...)
-    
-    message: |
-      Potential SSRF vulnerability detected. User-controlled input is used directly in an HTTP request.
-      This could allow an attacker to make requests to internal resources or arbitrary external URLs.
-      
-      Recommendations:
-      - Validate and sanitize the URL
-      - Use an allowlist of permitted domains/protocols
-      - Avoid using user input directly in URLs
-      - Consider using URL parsing to validate the destination
-      - Block requests to internal/private IP ranges
-    
-    languages:
-      - javascript
-      - typescript
-    
+  - id: ssrf.user-input-to-http-client
+    languages: [javascript, typescript]
+    message: "Possible SSRF: user-controlled data used as a URL in an HTTP request."
     severity: WARNING
-    
-    metadata:
-      category: security
-      cwe: "CWE-918: Server-Side Request Forgery (SSRF)"
-      owasp: "A10:2021 - Server-Side Request Forgery"
-      confidence: MEDIUM
+    mode: taint
+
+    pattern-sources:
+      - pattern-either:
+          - pattern: req.query.$X
+          - pattern: req.params.$X
+          - pattern: req.body.$X
+          - pattern: req.headers[$X]
+          - pattern: req.headers.get($X)
+          - pattern: context.request.query.$X
+          - pattern: context.request.body.$X
+
+    pattern-sinks:
+      - pattern-either:
+          # fetch / node-fetch / undici-style
+          - pattern: fetch($URL, ...)
+          - pattern: fetch(new URL($URL), ...)
+          - pattern: $FETCH.fetch($URL, ...)
+          # axios
+          - pattern: axios($URL, ...)
+          - pattern: axios.get($URL, ...)
+          - pattern: axios.post($URL, ...)
+
+          
+          # got
+          - pattern: got($URL, ...)
+          - pattern: got.get($URL, ...)
+          - pattern: got.post($URL, ...)
+          # request / request-promise (legacy)
+          - pattern: request($URL, ...)
+          - pattern: request.get($URL, ...)
+          - pattern: request.post($URL, ...)
+
+          # http/https core modules
+          - pattern: require("http").request($URL, ...)
+          - pattern: require("https").request($URL, ...)
+          - pattern: $HTTP.request($URL, ...)
+          - pattern: $HTTPS.request($URL, ...)
+
+    pattern-sanitizers:
+      - pattern-either:
+          # allow-list checks (you can expand this to match your codebase)
+          - pattern: allowlistHost($URL)
+          - pattern: isAllowedUrl($URL)
+          - pattern: validateUrl($URL)
+          - pattern: assertAllowedUrl($URL)

@@ -2,6 +2,18 @@
 
 module.exports = (app, db) => {
 
+    const allowedUrl = [
+        "http://localhost:3000",
+        "http://localhost:4000",
+        "http://localhost:5000",
+    ]
+
+    function validateUrl(url) {
+        if (allowedUrl.includes(url)) {
+            return url;
+        }
+        return null;
+    }
     //Get System/ warehouse information
     /**
      * GET /v1/status/{brand}
@@ -72,7 +84,7 @@ module.exports = (app, db) => {
      */
     app.get('/v1/test/', (req, res) => {
         var requests = require('axios')
-        var url = req.query.url
+        var url = validateUrl(req.query.url)
         if (url) {
             requests.get(url)
                 .then(Ares => {
