@@ -1,9 +1,0 @@
-rules:
-  - id: custom-sensitive-message-in-url
-    languages: [javascript]
-    severity: WARNING
-    message: "Sensitive info in URL: redirect includes message= in query string."
-    pattern-either:
-      - pattern: res.redirect($X + "message=" + $Y)
-      - pattern: res.redirect($X + "?message=" + $Y)
-      - pattern: res.redirect("...message=...")

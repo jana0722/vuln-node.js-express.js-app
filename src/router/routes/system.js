@@ -74,7 +74,6 @@ module.exports = (app, db) => {
         var requests = require('axios')
         var url = req.query.url
         if (url) {
-
             requests.get(url)
                 .then(Ares => {
                     //console.log(Ares);

@@ -1,0 +1,90 @@
+rules:
+  - id: nodejs-ssrf-detection
+    pattern-either:
+      # HTTP/HTTPS requests with user input
+      - pattern: |
+          require('http').request($URL, ...)
+      - pattern: |
+          require('https').request($URL, ...)
+      - pattern: |
+          require('http').get($URL, ...)
+      - pattern: |
+          require('https').get($URL, ...)
+      
+      # Axios requests
+      - pattern: |
+          axios.get($URL, ...)
+      - pattern: |
+          axios.post($URL, ...)
+      - pattern: |
+          axios.put($URL, ...)
+      - pattern: |
+          axios.delete($URL, ...)
+      - pattern: |
+          axios.request({url: $URL, ...})
+      - pattern: |
+          axios({url: $URL, ...})
+      
+      # Fetch API
+      - pattern: |
+          fetch($URL, ...)
+      
+      # Request library
+      - pattern: |
+          request.get($URL, ...)
+      - pattern: |
+          request.post($URL, ...)
+      - pattern: |
+          request($URL, ...)
+      
+      # Got library
+      - pattern: |
+          got.get($URL, ...)
+      - pattern: |
+          got.post($URL, ...)
+      - pattern: |
+          got($URL, ...)
+      
+      # Node-fetch
+      - pattern: |
+          nodeFetch($URL, ...)
+      
+      # Superagent
+      - pattern: |
+          superagent.get($URL)
+      - pattern: |
+          superagent.post($URL)
+    
+    # Look for patterns where URL comes from user input
+    metavariable-pattern:
+      metavariable: $URL
+      pattern-either:
+        - pattern: $REQ.query.$PARAM
+        - pattern: $REQ.body.$PARAM
+        - pattern: $REQ.params.$PARAM
+        - pattern: $REQ.headers.$HEADER
+        - pattern: $REQ.cookies.$COOKIE
+        - pattern: $REQ.get(...)
+    
+    message: |
+      Potential SSRF vulnerability detected. User-controlled input is used directly in an HTTP request.
+      This could allow an attacker to make requests to internal resources or arbitrary external URLs.
+      
+      Recommendations:
+      - Validate and sanitize the URL
+      - Use an allowlist of permitted domains/protocols
+      - Avoid using user input directly in URLs
+      - Consider using URL parsing to validate the destination
+      - Block requests to internal/private IP ranges
+    
+    languages:
+      - javascript
+      - typescript
+    
+    severity: WARNING
+    
+    metadata:
+      category: security
+      cwe: "CWE-918: Server-Side Request Forgery (SSRF)"
+      owasp: "A10:2021 - Server-Side Request Forgery"
+      confidence: MEDIUM
