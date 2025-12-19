@@ -16,7 +16,7 @@ Failed to register unwind handler for some critical signals, such as SIGSEGV. If
   Scanning 103 files tracked by git with 3 Code rules:
   Scanning 23 files with 3 js rules.
                 
-                
+                -
 ┌──────────────┐
 │ Scan Summary │
 └──────────────┘
