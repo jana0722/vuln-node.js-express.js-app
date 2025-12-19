@@ -1,6 +1,6 @@
 'user strcit';
 
-module.exports = (app,db) => {
+module.exports = (app, db) => {
 
     //Get System/ warehouse information
     /**
@@ -10,19 +10,19 @@ module.exports = (app,db) => {
      * @tags system
      * @param {string} brand.path.required - the beer brand you want to test
      */
-    app.get('/v1/status/:brand', (req,res) =>{
+    app.get('/v1/status/:brand', (req, res) => {
         var execSync = require('child_process').execSync;
 
-        try{
-            const test = execSync("curl https://letmegooglethat.com/?q="+ req.params.brand)
+        try {
+            const test = execSync("curl https://letmegooglethat.com/?q=" + req.params.brand)
             res.send(test)
         }
-        catch (e){
+        catch (e) {
             console.log(e)
         }
-        
+
     });
-        //redirect user to brand
+    //redirect user to brand
     /**
      * GET /v1/redirect/
      * @summary Redirect the user the beer brand website (Insecure redirect)
@@ -30,15 +30,19 @@ module.exports = (app,db) => {
      * @tags system
      * @param {string} url.query.required - the beer brand you want to redirect to
      */
-     app.get('/v1/redirect/', (req,res) =>{
-    var url = req.query.url
-    console.log(url)
-    if(url){
-        res.redirect(url);
-    } else{
-        next()
-    }
-        
+    app.get('/v1/redirect/', (req, res) => {
+        var url = req.query.url
+        console.log(url)
+        if (url) {
+            if (!url.startsWith("http://localhost:5000/")) {
+                res.redirect('/?message=Only Support Same Host');
+                return;
+            }
+            res.redirect(url);
+        } else {
+            next()
+        }
+
     });
     //initialize list of beers
     /**
@@ -58,12 +62,12 @@ module.exports = (app,db) => {
      * @tags system
      * @param {object} request.body.required - the beer brand you want to test
      */
-     app.post('/v1/init', (req,res) =>{
+    app.post('/v1/init', (req, res) => {
         var serialize = require('node-serialize');
         const body = req.body.object;
         var deser = serialize.unserialize(body)
         console.log(deser)
-        
+
     });
     //perform a test on an endpoint
     /**
@@ -72,28 +76,28 @@ module.exports = (app,db) => {
      * @tags system
      * @param {string} url.query.required - the beer brand you want to redirect to
      */
-     app.get('/v1/test/', (req,res) =>{
-         var requests = require('axios')
+    app.get('/v1/test/', (req, res) => {
+        var requests = require('axios')
         var url = req.query.url
         console.log(url)
-        if(url){
+        if (url) {
 
             requests.get(url)
-            .then(Ares => {
-                //console.log(Ares);
-                res.json({response:Ares.status});
-                console.log(`statusCode: ${Ares.status}`);
-            })
-            .catch(error => {
-                console.error(error);
-                res.json({response:error});
+                .then(Ares => {
+                    //console.log(Ares);
+                    res.json({ response: Ares.status });
+                    console.log(`statusCode: ${Ares.status}`);
+                })
+                .catch(error => {
+                    console.error(error);
+                    res.json({ response: error });
 
-            });
-        } else{
-            res.json({error:"No url provided"});
+                });
+        } else {
+            res.json({ error: "No url provided" });
 
         }
         console.log(res)
-            return
-        });
+        return
+    });
 };

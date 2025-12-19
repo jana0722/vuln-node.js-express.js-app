@@ -1,5 +1,5 @@
 {
-  "name": "vuln-node-js",
+  "name": "vuln-node",
   "version": "1.0.0",
   "description": "Dangerous vulnerable node.js + express dockerized app",
   "main": "src/server.js",
@@ -45,5 +45,8 @@
   },
   "devDependencies": {
     "sequelize-cli": "^6.4.1"
+  },
+  "directories": {
+    "test": "test"
   }
 }
