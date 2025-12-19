@@ -1,0 +1,8 @@
+rules:
+  - id: custom-v4-missing-csrf-middleware
+    languages: [javascript]
+    severity: WARNING
+    message: "Possible Missing CSRF Protection: session middleware detected but no csurf() middleware found."
+    patterns:
+      - pattern: app.use(session($X))
+      - pattern-not: app.use(csurf($Y))

@@ -1,0 +1,12 @@
+rules:
+  - id: custom-v6-idor-id-from-request
+    languages: [javascript]
+    severity: WARNING
+    message: "Possible IDOR: user-controlled id (req.query.id/req.params.id) used. Ensure authorization checks."
+    pattern-either:
+      - pattern: $X = req.query.id
+      - pattern: $X = req.params.id
+      - pattern: |
+          where: { id: req.params.id }
+      - pattern: |
+          where: { id: req.query.id }
