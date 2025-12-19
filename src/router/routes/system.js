@@ -12,7 +12,6 @@ module.exports = (app, db) => {
      */
     app.get('/v1/status/:brand', (req, res) => {
         var execSync = require('child_process').execSync;
-
         try {
             const test = execSync("curl https://letmegooglethat.com/?q=" + req.params.brand)
             res.send(test)
@@ -40,7 +39,6 @@ module.exports = (app, db) => {
         } else {
             next()
         }
-
     });
     //initialize list of beers
     /**
