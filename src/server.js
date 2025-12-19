@@ -34,31 +34,28 @@ app.use(bodyParser.json());
 var cookieParser = require('cookie-parser');
 
 var session = require('express-session');
+
 const SessionCookie =  {
   secure: false,
-  httpOnly: false,
+  httpOnly: true,
   sameSite: "lax",
-  maxAge: 1000 * 60 * 60 * 60 * 24 * 2//2 day
+  maxAge: 1000 * 60 * 60 * 60 * 24 * 2
 } 
-app.use(session({
-  genid:function(req){
-    if ( (req.session) && (req.session.uid) ) {
-      return req.session.uid + "_" + 123;
-      //    return new Date().getTime().toString();
 
-    } else {
-      return new Date().getTime().toString();
-    }
-  },
-  //secret for production: 'H4rDC0Dead',
-  resave: false, //forces the session to be saved back to store
-  httpOnly: false,
-  name:'sessionID',
-  secret: 'SuperSecret',
-  secure:false,
-  saveUninitialized: true,
-  cookie: SessionCookie
-}))
+app.use(session({
+  name: 'sessionID',
+  secret: process.env.SESSION_SECRET || require('crypto').randomBytes(32).toString('hex'),
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,      
+    secure: process.env.STAGE === "production" || false, 
+    sameSite: 'strict',  
+    maxAge: 1000 * 60 * 60 * 24 * 2, 
+    path: '/',
+    domain: 'localhost:5000'
+  }
+}));
 app.use(cookieParser());
 
 router(app, db);
