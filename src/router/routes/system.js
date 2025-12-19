@@ -32,13 +32,11 @@ module.exports = (app, db) => {
      */
     app.get('/v1/redirect/', (req, res) => {
         var url = req.query.url
-        console.log(url)
         if (url) {
-            if (!url.startsWith("http://localhost:5000/")) {
-                res.redirect('/?message=Only Support Same Host');
-                return;
-            }
-            res.redirect(url);
+            const parsedURL = new URL(url);
+            const path = parsedURL.pathname;
+            console.log(path);
+            res.redirect(`http://localhost:5000${path}`);
         } else {
             next()
         }
