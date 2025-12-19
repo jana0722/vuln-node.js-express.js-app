@@ -12,7 +12,6 @@ module.exports = (app, db) => {
      * @param {string} message.query - a message to present to the user
      */
     app.get('/', (req, res) => {
-        console.log(req.session);
         const message = req.query.message || "Please log in to continue";
         res.render('user.html',
             { message });
@@ -52,8 +51,7 @@ module.exports = (app, db) => {
         //validate email using regular expression
         var emailExpression = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
         var regex = new RegExp(emailExpression)
-        console.log(userEmail)
-        console.log(emailExpression.test(userEmail))
+    
         if (!emailExpression.test(userEmail)) {
             res.redirect("/register?message=Email coulden't be validated, please try again.")
             return
@@ -67,7 +65,11 @@ module.exports = (app, db) => {
                 address: userAddress,
                 password: (userPassword)
             }).then(new_user => {
-                res.redirect('/profile?id=' + new_user.id);
+                const { dataValues } = new_user;
+                req.session.logon = true;
+                req.session.userId = dataValues.id;
+                console.log("Session inside register: ", req.session);
+                res.redirect('/profile?id=' + req.session.userId);
             }).catch(
                 (e) => {
                     console.log(e)
@@ -91,7 +93,6 @@ module.exports = (app, db) => {
     app.get('/login', (req, res) => {
         var userEmail = req.query.email;
         var userPassword = req.query.password;
-        console.log(req.query.message)
         const user = db.user.findAll({
             where: {
                 email: userEmail
@@ -101,12 +102,11 @@ module.exports = (app, db) => {
                 res.redirect('/?message=Password was not found! Please Try again')
                 return;
             }
-
             const md5 = require('md5')
-            console.error("User -----> ", user[0]);
+            
             const { dataValues } = user[0];
             //compare password with and without hash
-            if (dataValues.email == userPassword && dataValues.password == userPassword) {
+            if (dataValues.email == userEmail && dataValues.password == userPassword) {
                 req.session.logged = true
                 req.session.userId = dataValues.id;
                 res.redirect('/profile?id=' + req.session.userId);
@@ -127,11 +127,17 @@ module.exports = (app, db) => {
      * @param {string} profile_description
      */
     app.get('/profile', (req, res) => {
-
+        console.log(req.session);
         if (!req.query.id) {
             res.redirect("/?message=Could not Access profile please log in or register")
             return;
         }
+
+        if (req.query.id != req.session.userId) {
+            res.redirect("/?message=You Can't Access this user data");
+            return;
+        }
+
         const user = db.user.findAll({
             include: // Notice `include` takes an ARRAY
                 'beers',
@@ -144,9 +150,6 @@ module.exports = (app, db) => {
                 return;
             }
             let beers = db.beer.findAll().then(beers => {
-
-                console.log(user)
-                console.log(beers)
 
                 res.render('profile.html',
                     { beers: beers, user: user[0] });
@@ -198,7 +201,7 @@ module.exports = (app, db) => {
                     if (req.query.relationship) {
                         love_message = req.query.relationship
                     }
-                    console.log(beer)
+
 
 
 

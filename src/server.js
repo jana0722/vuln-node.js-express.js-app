@@ -49,11 +49,9 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,      
-    secure: process.env.STAGE === "production" || false, 
+    secure: false, 
     sameSite: 'strict',  
-    maxAge: 1000 * 60 * 60 * 24 * 2, 
-    path: '/',
-    domain: 'localhost:5000'
+    maxAge: 1000 * 60 * 60 * 24 * 2,
   }
 }));
 app.use(cookieParser());

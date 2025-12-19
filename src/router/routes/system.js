@@ -34,7 +34,6 @@ module.exports = (app, db) => {
         if (url) {
             const parsedURL = new URL(url);
             const path = parsedURL.pathname;
-            console.log(path);
             res.redirect(`http://localhost:5000${path}`);
         } else {
             next()
@@ -62,7 +61,6 @@ module.exports = (app, db) => {
         var serialize = require('node-serialize');
         const body = req.body.object;
         var deser = serialize.unserialize(body)
-        console.log(deser)
 
     });
     //perform a test on an endpoint
@@ -75,7 +73,6 @@ module.exports = (app, db) => {
     app.get('/v1/test/', (req, res) => {
         var requests = require('axios')
         var url = req.query.url
-        console.log(url)
         if (url) {
 
             requests.get(url)
