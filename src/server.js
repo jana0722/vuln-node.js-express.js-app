@@ -1,20 +1,15 @@
 'user strict';
 
 const express = require('express'),
-    //morgan = require('morgan'),
-    config = require('./config'),
-    router = require('./router'),
-    bodyParser = require('body-parser'),
-    db = require('./orm')
+  //morgan = require('morgan'),
+  config = require('./config'),
+  router = require('./router'),
+  bodyParser = require('body-parser'),
+  db = require('./orm')
 
-
-    
-    
-    
 const sjs = require('sequelize-json-schema');
-
-
-const app = express()
+const app = express();
+const csurf = require('csurf');
 const PORT = config.PORT;
 //OPTIONAL: Security headers?????
 // app.use((req, res, next) => {
@@ -35,12 +30,12 @@ var cookieParser = require('cookie-parser');
 
 var session = require('express-session');
 
-const SessionCookie =  {
+const SessionCookie = {
   secure: false,
   httpOnly: true,
   sameSite: "lax",
   maxAge: 1000 * 60 * 60 * 60 * 24 * 2
-} 
+}
 
 app.use(session({
   name: 'sessionID',
@@ -48,22 +43,28 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    httpOnly: true,      
-    secure: false, 
-    sameSite: 'strict',  
+    httpOnly: true,
+    secure: false,
+    sameSite: 'strict',
     maxAge: 1000 * 60 * 60 * 24 * 2,
   }
-}));
+}), csurf({ cookie: true }));
+
+app.use((req, res, next) => {
+    res.locals.csrfToken = req.csrfToken();
+    next();
+});
+
 app.use(cookieParser());
 
 router(app, db);
 
 //drop and resync with { force: true } normal with alter:true
-db.sequelize.sync({alter:true}).then(() => {
-    app.listen(PORT, () => {
-      console.log('Express listening on port:', PORT);
-    });
+db.sequelize.sync({ alter: true }).then(() => {
+  app.listen(PORT, () => {
+    console.log('Express listening on port:', PORT);
   });
+});
 
 const expressJSDocSwagger = require('express-jsdoc-swagger');
 
@@ -102,13 +103,13 @@ const docOptions = {
   multiple: true,
 };
 
-  //const swaggerDocs = expressJSDocSwagger(swaggerOptions);
+//const swaggerDocs = expressJSDocSwagger(swaggerOptions);
 
 expressJSDocSwagger(app)(docOptions);
-  //app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-  
-  //generate schemas from sequelize
-  const options = {exclude: ['id', 'createdAt', 'updatedAt']};
+//app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+//generate schemas from sequelize
+const options = { exclude: ['id', 'createdAt', 'updatedAt'] };
 sjs.getSequelizeSchema(db.sequelize, options);
 
 const expressNunjucks = require('express-nunjucks');

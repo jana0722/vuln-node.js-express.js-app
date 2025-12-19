@@ -4,5 +4,5 @@ rules:
     severity: WARNING
     message: "Possible Missing CSRF Protection: session middleware detected but no csurf() middleware found."
     patterns:
-      - pattern: app.use(session($X))
-      - pattern-not: app.use(csurf($Y))
+      - pattern: app.use(session(...))
+      - pattern-not: app.use(csurf(...))
