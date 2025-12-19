@@ -48,14 +48,19 @@ app.use(session({
     sameSite: 'strict',
     maxAge: 1000 * 60 * 60 * 24 * 2,
   }
-}), csurf({ cookie: true }));
+}));
+
+
+
+app.use(cookieParser());
+app.use(csurf({ cookie: true }));
+
 
 app.use((req, res, next) => {
     res.locals.csrfToken = req.csrfToken();
     next();
 });
 
-app.use(cookieParser());
 
 router(app, db);
 
