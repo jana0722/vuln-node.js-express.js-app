@@ -49,7 +49,7 @@ module.exports = (app,db) => {
      * @return {array<User>} 200 - success response - application/json
      */
      app.get('/v1/user/:id', (req,res) =>{
-        db.user.findOne({include: 'beers',where: { id : req.params.id}})
+        db.user.findOne({include: 'beers',where: { id : req.session.userId }})
             .then(user => {
                 res.json(user);
             });
@@ -62,7 +62,7 @@ module.exports = (app,db) => {
      * @return {array<User>} 200 - success response - application/json
      */
          app.delete('/v1/user/:id', (req,res) =>{
-            db.user.destroy({where: { id : req.params.id}})
+            db.user.destroy({where: { id : req.session.userId}})
                 .then(user => {
                     res.json({result: "deleted"});
                 })
@@ -116,7 +116,7 @@ module.exports = (app,db) => {
      * @return {object} 200 - user response
      */
           app.get('/v1/love/:beer_id', (req,res) =>{
-            var current_user_id = req.query.id;
+            var current_user_id = req.session.userId;
             var front = true;
             if (req.query.front){
                 front = req.query.front
@@ -183,7 +183,7 @@ module.exports = (app,db) => {
                 }
                 current_user_id = req.session.user.id
             }
-            current_user_id = req.query.id
+            current_user_id = req.session.userId
             
             const beer_id = req.params.beer_id;
 
@@ -320,7 +320,7 @@ module.exports = (app,db) => {
     */
      app.put('/v1/user/:id', (req,res) =>{
 
-        const userId = req.params.id;
+        const userId = req.session.userId;
         const userPassword = req.password;
         const userEmail = req.body.email
         const userProfilePic = req.body.profile_pic
@@ -352,7 +352,7 @@ module.exports = (app,db) => {
     */
      app.put('/v1/admin/promote/:id', (req,res) =>{
 
-        const userId = req.params.id;
+        const userId = req.session.userId;
         const user = db.user.update({role:'admin'}, {
             where: {
                 id : userId
@@ -380,7 +380,7 @@ module.exports = (app,db) => {
    */
     app.post('/v1/user/:id/validate-otp', (req,res) =>{
 
-       const userId = req.params.id;
+       const userId = req.session.userId;
        const user = db.user.findOne({
            where: {
              id: userId

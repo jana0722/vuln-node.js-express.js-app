@@ -65,7 +65,7 @@ module.exports = (app, db) => {
                 email: userEmail,
                 role: userRole,
                 address: userAddress,
-                password: md5(userPassword)
+                password: (userPassword)
             }).then(new_user => {
                 res.redirect('/profile?id=' + new_user.id);
             }).catch(
@@ -103,10 +103,13 @@ module.exports = (app, db) => {
             }
 
             const md5 = require('md5')
+            console.error("User -----> ", user[0]);
+            const { dataValues } = user[0];
             //compare password with and without hash
-            if ((user[0].password == userPassword) || (md5(user[0].password) == userPassword)) {
+            if (dataValues.email == userPassword && dataValues.password == userPassword) {
                 req.session.logged = true
-                res.redirect('/profile?id=' + user[0].id);
+                req.session.userId = dataValues.id;
+                res.redirect('/profile?id=' + req.session.userId);
                 return;
             }
             res.redirect('/?message=Password was not correct, please try again')
@@ -133,7 +136,7 @@ module.exports = (app, db) => {
             include: // Notice `include` takes an ARRAY
                 'beers',
             where: {
-                id: req.query.id
+                id: req.session.userId
             }
         }).then(user => {
             if (user.length == 0) {
@@ -172,7 +175,7 @@ module.exports = (app, db) => {
             include:
                 'users',
             where: {
-                id: req.query.id
+                id: req.session.userId
             }
         }).then(beer => {
             if (beer.length == 0) {
